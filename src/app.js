@@ -4,8 +4,12 @@ import __dirname from "./dirname.js";
 import handlebars from "express-handlebars";
 import { Server } from "socket.io";
 import viewsRoutes from "./routes/views.routes.js";
+import productManager from "./dao/fyleSystem/productManager.js";
+import { connectMongoDB } from "./config/mongoDB.config.js";
 
 const app = express();
+
+connectMongoDB()
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -27,6 +31,6 @@ const httpServer = app.listen(8080, () => {
 // Configuramos socket
 export const io = new Server(httpServer);
 
-io.on("connection", (socket) => {
+io.on("connection", async socket => {
     console.log("Nuevo usuario Conectado");
 });

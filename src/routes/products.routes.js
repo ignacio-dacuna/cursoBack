@@ -1,25 +1,24 @@
 import { Router } from "express";
-import productManager from "../productManager.js";
 import { checkProductData } from "../middlewares/checkProductData.middleware.js";
+import productDao from "../dao/mongoDB/product.dao.js";
 
 const router = Router();
 
+
 router.get("/", async (req, res) => {
     try {
-    const { limit } = req.query;
-    const products = await productManager.getProducts(limit);
-    // throw new Error("Error de productos") // Forzamos el error
-    res.status(200).json({ status: "success", products });
+        const products = await productDao.getAll();
+        res.status(200).json({ status: "success", products });
     } catch (error) {
-    console.log(error);
-    res.status(500).json({ status: "Erro", msg: "Error interno del servidor" });
+        console.log(error);
+        res.status(500).json({ status: "Erro", msg: "Error interno del servidor" });
     }
 });
 
 router.get("/:pid", async (req, res) => {
     try {
     const { pid } = req.params;
-    const product = await productManager.getProductById(Number(pid));
+    const product = await productDao.getById(pid)
     if (!product) return res.status(404).json({ status: "Error", msg: "Producto no encontrado" });
 
     res.status(200).json({ status: "success", product });
@@ -32,7 +31,7 @@ router.get("/:pid", async (req, res) => {
 router.delete("/:pid", async (req, res) => {
     try {
     const { pid } = req.params;
-    const product = await productManager.deleteProduct(Number(pid));
+    const product = await productDao.deleteOne(pid)
     if (!product) return res.status(404).json({ status: "Error", msg: "Producto no encontrado" });
 
     res.status(200).json({ status: "success", msg: `El producto con el id ${pid} fue eliminado` });
@@ -45,8 +44,8 @@ router.delete("/:pid", async (req, res) => {
 router.put("/:pid", async (req, res) => {
     try {
     const { pid } = req.params;
-    const body = req.body
-    const product = await productManager.updateProduct(Number(pid), body);
+    const productData = req.body
+    const product = await productDao.update(pid, productData)
     if (!product) return res.status(404).json({ status: "Error", msg: "Producto no encontrado" });
 
     res.status(200).json({ status: "success", product });
@@ -58,8 +57,8 @@ router.put("/:pid", async (req, res) => {
 
 router.post("/", checkProductData, async (req, res) => {
     try {
-    const body = req.body;
-    const product = await productManager.addProduct(body);
+    const productData = req.body;
+    const product = await productDao.create(productData)
 
     res.status(201).json({ status: "success", product });
     } catch (error) {
