@@ -7,7 +7,23 @@ const router = Router();
 
 router.get("/", async (req, res) => {
     try {
-        const products = await productDao.getAll();
+        const {limit, page, sort, category, status} = req.query
+
+        const options = {
+            limit: limit || 5,
+            page: page || 1,
+            sort: {
+                price: sort === "asc" ? 1 : -1
+            }, 
+            learn: true
+        } 
+        if (category){
+            const products = await productDao.getAll({category}, options)
+            res.status(200).json({ status: "success", products });
+        }
+        
+
+        const products = await productDao.getAll({}, options);
         res.status(200).json({ status: "success", products });
     } catch (error) {
         console.log(error);

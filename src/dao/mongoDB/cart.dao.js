@@ -40,11 +40,44 @@ const addProductToCart = async (cid, pid) => {
     return cart;
 };
 
+const deleteProductToCart = async (cid, pid) => {
+    const cart = await cartModel.findById(cid);
+
+    cart.products = cart.products.filter((element) => element.product != pid);
+
+    await cart.save();
+
+    return cart;
+};
+
+const updateQuantityProductInCart = async (cid, pid, quantity) => {
+
+    const cart = await cartModel.findById(cid);
+    const product = cart.products.find( element => element.product == pid);
+    product.quantity = quantity;
+
+    await cart.save();
+    return cart;
+}
+
+const clearProductsToCart = async (cid) => {
+
+    const cart = await cartModel.findById(cid);
+    cart.products = []
+
+    await cart.save()
+
+    return cart;
+    
+}
 export default {
     getAll,
     getById,
     create,
     update,
     deleteOne,
-    addProductToCart
-}
+    addProductToCart,
+    deleteProductToCart,
+    updateQuantityProductInCart,
+    clearProductsToCart
+};
