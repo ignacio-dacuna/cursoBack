@@ -1,4 +1,5 @@
 import { cartModel } from "./models/cart.model.js";
+import { productModel } from "./models/product.model.js";
 
 const getAll = async () => {
     const carts = await cartModel.find();
@@ -6,7 +7,7 @@ const getAll = async () => {
 };
 
 const getById = async (id) => {
-    const cart = await cartModel.findById(id);
+    const cart = await cartModel.findById(id)
     return cart;
 };
 
@@ -26,10 +27,18 @@ const deleteOne = async (id) => {
     return cart;
 };
 
-const addProductToCart = async (id, product) => {
-    const cart = await cartModel.findByIdAndUpdate(id, { $push: {products: product} }, {new: true});
+const addProductToCart = async (cid, pid) => {
+    const cart = await cartModel.findById(cid);
+    
+    const productInCart = cart.products.find((element) => element.product == pid);
+    if (productInCart) {
+        productInCart.quantity++;
+    } else {
+        cart.products.push({ product: pid, quantity: 1 });
+    }
+    await cart.save(); 
     return cart;
-}
+};
 
 export default {
     getAll,
